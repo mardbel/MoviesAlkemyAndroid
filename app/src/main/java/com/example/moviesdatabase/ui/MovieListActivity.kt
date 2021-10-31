@@ -2,31 +2,38 @@ package com.example.moviesdatabase.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.moviesdatabase.data.Movie
+import androidx.recyclerview.widget.RecyclerView
 import com.example.moviesdatabase.databinding.ActivityMovieListBinding
 import com.example.moviesdatabase.viewmodels.MovieListViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class MovieListActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMovieListBinding
-    private val adapter = MovieListAdapter()
+    private val adapter = MovieListAdapter(this) {
+        val idItemClicked = it
+        val intent = Intent(this@MovieListActivity, MovieDetailActivity::class.java)
+            .putExtra("selected movie", idItemClicked)
+        startActivity(intent)
+    }
     private val viewModel by viewModels<MovieListViewModel>()
     private var searchJob: Job? = null
 
-    private fun search() {
-        // Make sure we cancel the previous job before creating a new one
+    fun searchMovies() {
         searchJob?.cancel()
         searchJob = lifecycleScope.launch {
-            viewModel.movies.collect(){
+            viewModel.searchMovies().collect {
                 adapter.submitData(it)
             }
         }
@@ -39,24 +46,31 @@ class MovieListActivity : AppCompatActivity() {
 
         val recycler = binding.recyclerMovieList
         recycler.adapter = adapter
-        recycler.layoutManager = LinearLayoutManager(this)
-        search()
+        GridLayoutManager(this, 2, RecyclerView.VERTICAL, false).apply {
+            recycler.layoutManager = this
+        }
+        searchMovies()
 
-
-
-
-        adapter.setOnClickListener(object : MovieListAdapter.OnItemClickListener {
-            override fun onItemClick(position: Int) {
-
-
-                val intent = Intent(this@MovieListActivity, MovieDetailActivity::class.java)
-                    .putExtra("selected movie", position)
-                startActivity(intent)
-            }
-        })
+        binding.searchIcon.setOnClickListener {
+            val intent = Intent(this@MovieListActivity, SearchActivity::class.java)
+            startActivity(intent)
+        }
     }
-
 }
+
+/*val searchET = binding.searchET.text.toString()
+fun showToastMenuXml(item: MenuItem){
+    val toast = Toast.makeText(this, "$searchET", Toast.LENGTH_LONG);
+    toast.show()
+}
+
+val searchIcon = binding
+val filtredMovie = binding.myEditText.text.toString()
+val intent = Intent(this@MovieListActivity, MovieDetailActivity::class.java)
+    .putExtra("selected movie", idItemClicked)
+startActivity(intent)
+*/
+
 
 
 

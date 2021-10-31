@@ -16,7 +16,8 @@ data class Movie(
 
     : Parcelable {
 
-    var imageUrl: String = ""
+
+
     var genresM: List<String> = mutableListOf()
 
     fun getGenresAsString(): String {

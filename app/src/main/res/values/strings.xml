@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">MoviesDatabase</string>
+    <string name="movie_detail_error">Dallas, TX</string>
+    <string name="detail_error">Error retrieving info from remote server</string>
+    <string name="search">search</string>
+    <string name="content_description_search">other search</string>
 </resources>

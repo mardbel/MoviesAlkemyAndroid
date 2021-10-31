@@ -1,27 +1,29 @@
 package com.example.moviesdatabase.viewmodels
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.paging.LivePagedListBuilder
-import androidx.paging.PagedList
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.example.moviesdatabase.data.Movie
-import com.example.moviesdatabase.repository.MoviesDataSource
 import com.example.moviesdatabase.repository.MoviesRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MovieListViewModel : ViewModel() {
+@HiltViewModel
+class MovieListViewModel @Inject constructor(private val moviesRepository: MoviesRepository) :
+    ViewModel() {
 
-    val movies: Flow<PagingData<Movie>> = MoviesRepository
-        .getMoviesPlayingNow()
-        .cachedIn(viewModelScope)
+    var currentSearchResult: Flow<PagingData<Movie>>? = null
+
+    fun searchMovies(): Flow<PagingData<Movie>> {
+        val newResult: Flow<PagingData<Movie>> = moviesRepository.getMoviesPlayingNow()
+            .cachedIn(viewModelScope)
+        currentSearchResult = newResult
+        return newResult
+    }
 }
-
-
 
 
 
